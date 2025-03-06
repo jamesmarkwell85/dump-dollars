@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dump Dollars - The Logfather Top 50</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5e0c7;
+      color: #3e2723;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff3e0;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px auto;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #8d6e63;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #6d4c41;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>The Logfather - Top 50</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Poo Time (sec)</th>
+          <th>Earned ($)</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody id="logfatherTable">
+        <!-- Top 50 entries will be rendered here -->
+      </tbody>
+    </table>
+    <button onclick="window.location.href='index.html'">Back to Dump Dollars</button>
+  </div>
+  
+  <script>
+    function formatMoney(amount) {
+      return amount.toFixed(2);
+    }
+    function renderTopFifty() {
+      const tableBody = document.getElementById("logfatherTable");
+      tableBody.innerHTML = "";
+      let highScores = JSON.parse(localStorage.getItem('logfatherData')) || [];
+      highScores.sort((a, b) => b.earned - a.earned);
+      highScores.slice(0, 50).forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${index + 1}</td>
+                         <td>${entry.name}</td>
+                         <td>${entry.date}</td>
+                         <td>${entry.pooTime}</td>
+                         <td>$${formatMoney(entry.earned)}</td>
+                         <td>${entry.comment}</td>`;
+        tableBody.appendChild(row);
+      });
+    }
+    renderTopFifty();
+  </script>
+</body>
+</html>

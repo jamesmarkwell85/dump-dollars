@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dump Dollars</title>
+  <style>
+    /* Poo-based colour scheme using brown tones; no images */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5e0c7; /* light, warm brown tone */
+      color: #3e2723; /* dark brown for text */
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff3e0;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    input, button, textarea {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #8d6e63;
+      margin: 5px 0;
+      font-size: 1em;
+      text-align: center;
+    }
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+    /* Make Start Poo and End Poo buttons more defined and prominent */
+    .prominent-button {
+      padding: 15px 25px;
+      font-size: 1.2em;
+      background: #6d4c41;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      margin: 10px;
+    }
+    .prominent-button:disabled {
+      background: #a1887f;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px auto;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #8d6e63;
+      text-align: center;
+    }
+    .section {
+      margin: 20px 0;
+    }
+    .view-more-btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #6d4c41;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dump Dollars</h1>
+    <!-- User details section -->
+    <div id="userInputSection" class="section">
+      <h2>Enter Your Details</h2>
+      <input type="text" id="userName" placeholder="Enter your name" />
+      <input type="number" id="userSalary" placeholder="Enter your annual salary" />
+      <button id="saveUser">Save Details</button>
+    </div>
+    
+    <!-- Main app section; initially hidden -->
+    <div id="mainSection" class="section" style="display: none;">
+      <div>
+        <h2>Welcome, <span id="displayName"></span>!</h2>
+        <button id="editSalary">Edit Salary</button>
+      </div>
+      
+      <!-- Timer section -->
+      <div id="timerSection" class="section">
+        <h2>The Stool Stopwatch</h2>
+        <button id="startTimer" class="prominent-button">Start Poo</button>
+        <button id="stopTimer" class="prominent-button" disabled>End Poo</button>
+        <p>Time elapsed: <span id="timeElapsed">0</span> seconds</p>
+        <p>You earned: $<span id="salaryEarned">0.00</span></p>
+      </div>
+      
+      <!-- Turd Tracker (running tallies) section -->
+      <div id="tallySection" class="section">
+        <h2>Turd Tracker</h2>
+        <table>
+          <tr>
+            <th>Period</th>
+            <th>Time (sec)</th>
+            <th>Earned ($)</th>
+          </tr>
+          <tr>
+            <td>Today</td>
+            <td id="todayTime">0</td>
+            <td id="todayEarned">0.00</td>
+          </tr>
+          <tr>
+            <td>This Week</td>
+            <td id="weekTime">0</td>
+            <td id="weekEarned">0.00</td>
+          </tr>
+          <tr>
+            <td>This Month</td>
+            <td id="monthTime">0</td>
+            <td id="monthEarned">0.00</td>
+          </tr>
+          <tr>
+            <td>This Fecal Year</td>
+            <td id="yearTime">0</td>
+            <td id="yearEarned">0.00</td>
+          </tr>
+        </table>
+      </div>
+      
+      <!-- The Logfather (high scores) section limited to 10 entries -->
+      <div id="highScoreSection" class="section">
+        <h2>The Logfather</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Poo Time (sec)</th>
+              <th>Earned ($)</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody id="highScoreTable">
+            <!-- Top 10 entries will be rendered here -->
+          </tbody>
+        </table>
+        <button class="view-more-btn" onclick="window.location.href='logfather.html'">View More</button>
+      </div>
+      
+      <!-- Leaderboards -->
+      <div id="leaderSections" class="section">
+        <h2>Leaderboards</h2>
+        <div id="weekLeaderSection">
+          <h3>The Turd Tycoon (This Week)</h3>
+          <p>Name: <span id="weekLeaderName">N/A</span></p>
+          <p>Earned: $<span id="weekLeaderValue">0.00</span></p>
+        </div>
+        <div id="monthLeaderSection">
+          <h3>The Poo-fessional (This Month)</h3>
+          <p>Name: <span id="monthLeaderName">N/A</span></p>
+          <p>Earned: $<span id="monthLeaderValue">0.00</span></p>
+        </div>
+        <div id="allTimeLeaderSection">
+          <h3>CEO of Number Two (All Time)</h3>
+          <p>Name: <span id="allTimeLeaderName">N/A</span></p>
+          <p>Earned: $<span id="allTimeLeaderValue">0.00</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK and App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_9ANCPN-WLV1dwqjq5z_pEE4WUct7IKU",
+      authDomain: "poo-timer-salary-app.firebaseapp.com",
+      databaseURL: "https://poo-timer-salary-app-default-rtdb.firebaseio.com",
+      projectId: "poo-timer-salary-app",
+      storageBucket: "poo-timer-salary-app.firebasestorage.app",
+      messagingSenderId: "2281331397",
+      appId: "1:2281331397:web:9fc7f771c89e71cc8d6eac",
+      measurementId: "G-7Q4MXQ3430"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    let userName = "";
+    let userSalary = 0;
+    let hourlyRate = 0;
+    let timerInterval;
+    let startTime;
+    let currentPooDuration = 0;
+    let tallies = {
+      today: 0,
+      week: 0,
+      month: 0,
+      year: 0,
+      todayEarned: 0,
+      weekEarned: 0,
+      monthEarned: 0,
+      yearEarned: 0
+    };
+
+    let weekLeader = {name: "", value: 0};
+    let monthLeader = {name: "", value: 0};
+    let allTimeLeader = {name: "", value: 0};
+
+    function formatMoney(amount) {
+      return amount.toFixed(2);
+    }
+
+    function calculateHourlyRate(salary) {
+      return salary / 1976; // 38hrs x 52 weeks
+    }
+
+    function updateLeaderboards() {
+      document.getElementById("weekLeaderName").textContent = weekLeader.name || "N/A";
+      document.getElementById("weekLeaderValue").textContent = formatMoney(weekLeader.value);
+      document.getElementById("monthLeaderName").textContent = monthLeader.name || "N/A";
+      document.getElementById("monthLeaderValue").textContent = formatMoney(monthLeader.value);
+      document.getElementById("allTimeLeaderName").textContent = allTimeLeader.name || "N/A";
+      document.getElementById("allTimeLeaderValue").textContent = formatMoney(allTimeLeader.value);
+    }
+
+    // Save a new high score to localStorage and update table
+    function saveHighScore(newEntry) {
+      let highScores = JSON.parse(localStorage.getItem('logfatherData')) || [];
+      highScores.push(newEntry);
+      highScores.sort((a, b) => b.earned - a.earned);
+      localStorage.setItem('logfatherData', JSON.stringify(highScores));
+      renderHighScores();
+    }
+
+    // Render only the top 10 entries in The Logfather table
+    function renderHighScores() {
+      const highScoreTable = document.getElementById("highScoreTable");
+      highScoreTable.innerHTML = "";
+      const highScores = JSON.parse(localStorage.getItem('logfatherData')) || [];
+      highScores.slice(0, 10).forEach(entry => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${entry.name}</td>
+                         <td>${entry.date}</td>
+                         <td>${entry.pooTime}</td>
+                         <td>$${formatMoney(entry.earned)}</td>
+                         <td>${entry.comment}</td>`;
+        highScoreTable.appendChild(row);
+      });
+    }
+
+    // Check for stored user data on load
+    window.addEventListener("load", function() {
+      const storedUser = localStorage.getItem("userData");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        userName = user.name;
+        userSalary = user.salary;
+        hourlyRate = calculateHourlyRate(userSalary);
+        document.getElementById("displayName").textContent = userName;
+        document.getElementById("userInputSection").style.display = "none";
+        document.getElementById("mainSection").style.display = "block";
+      }
+      renderHighScores();
+    });
+
+    document.getElementById("saveUser").addEventListener("click", function() {
+      userName = document.getElementById("userName").value;
+      userSalary = parseFloat(document.getElementById("userSalary").value);
+      if (userName && userSalary > 0) {
+        hourlyRate = calculateHourlyRate(userSalary);
+        document.getElementById("displayName").textContent = userName;
+        document.getElementById("userInputSection").style.display = "none";
+        document.getElementById("mainSection").style.display = "block";
+        // Save user details to localStorage so they are remembered
+        localStorage.setItem("userData", JSON.stringify({ name: userName, salary: userSalary }));
+      } else {
+        alert("Please enter a valid name and salary.");
+      }
+    });
+
+    document.getElementById("editSalary").addEventListener("click", function() {
+      document.getElementById("userInputSection").style.display = "block";
+      document.getElementById("mainSection").style.display = "none";
+      document.getElementById("userName").value = userName;
+      document.getElementById("userSalary").value = userSalary;
+    });
+
+    // Start timer
+    document.getElementById("startTimer").addEventListener("click", function() {
+      startTime = Date.now();
+      document.getElementById("startTimer").disabled = true;
+      document.getElementById("stopTimer").disabled = false;
+      timerInterval = setInterval(() => {
+        currentPooDuration = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById("timeElapsed").textContent = currentPooDuration;
+        const earned = currentPooDuration * (hourlyRate / 3600);
+        document.getElementById("salaryEarned").textContent = formatMoney(earned);
+      }, 1000);
+    });
+
+    // Stop timer and log entry
+    document.getElementById("stopTimer").addEventListener("click", function() {
+      clearInterval(timerInterval);
+      if (confirm("Are you ready to Log It In?")) {
+        const comment = prompt("Enter your comment for this poo log:");
+        if (comment !== null) {
+          alert("The Deuce is Set");
+          const earned = currentPooDuration * (hourlyRate / 3600);
+          tallies.today += currentPooDuration;
+          tallies.week += currentPooDuration;
+          tallies.month += currentPooDuration;
+          tallies.year += currentPooDuration;
+          tallies.todayEarned += earned;
+          tallies.weekEarned += earned;
+          tallies.monthEarned += earned;
+          tallies.yearEarned += earned;
+          
+          document.getElementById("todayTime").textContent = tallies.today;
+          document.getElementById("weekTime").textContent = tallies.week;
+          document.getElementById("monthTime").textContent = tallies.month;
+          document.getElementById("yearTime").textContent = tallies.year;
+          document.getElementById("todayEarned").textContent = formatMoney(tallies.todayEarned);
+          document.getElementById("weekEarned").textContent = formatMoney(tallies.weekEarned);
+          document.getElementById("monthEarned").textContent = formatMoney(tallies.monthEarned);
+          document.getElementById("yearEarned").textContent = formatMoney(tallies.yearEarned);
+          
+          // Create high score entry object
+          const newEntry = {
+            name: userName,
+            date: new Date().toLocaleDateString(),
+            pooTime: currentPooDuration,
+            earned: earned,
+            comment: comment
+          };
+          saveHighScore(newEntry);
+          
+          // Update leaderboards if necessary
+          if (earned > weekLeader.value) {
+            weekLeader = {name: userName, value: earned};
+          }
+          if (earned > monthLeader.value) {
+            monthLeader = {name: userName, value: earned};
+          }
+          if (earned > allTimeLeader.value) {
+            allTimeLeader = {name: userName, value: earned};
+          }
+          updateLeaderboards();
+          
+          // Reset timer for next session
+          document.getElementById("timeElapsed").textContent = "0";
+          document.getElementById("salaryEarned").textContent = "0.00";
+          currentPooDuration = 0;
+          document.getElementById("startTimer").disabled = false;
+          document.getElementById("stopTimer").disabled = true;
+        } else {
+          alert("Poo log canceled. Please end the session properly.");
+          timerInterval = setInterval(() => {
+            currentPooDuration = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById("timeElapsed").textContent = currentPooDuration;
+            const earned = currentPooDuration * (hourlyRate / 3600);
+            document.getElementById("salaryEarned").textContent = formatMoney(earned);
+          }, 1000);
+        }
+      } else {
+        timerInterval = setInterval(() => {
+          currentPooDuration = Math.floor((Date.now() - startTime) / 1000);
+          document.getElementById("timeElapsed").textContent = currentPooDuration;
+          const earned = currentPooDuration * (hourlyRate / 3600);
+          document.getElementById("salaryEarned").textContent = formatMoney(earned);
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>
